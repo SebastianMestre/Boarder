@@ -1,0 +1,66 @@
+{
+	"unions": {
+		"title": "Union / sum types",
+		"tags": ["language-feature"],
+		"text": "Implement unions into the language, along with a way to visit their members",
+		"children": [
+			"unions-parse"
+		]
+	},
+	"unions-parse": {
+		"title": "Parse union / sum types",
+		"tags": ["syntax", "parser"],
+		"text": "implement parsing of unions in the type system",
+		"children": [
+			"types-bnf"
+		]
+	},
+	"types-bnf": {
+		"title": "Type language BNF",
+		"tags": ["syntax", "bnf"],
+		"text": "type-expr   ::= mono-type | type-func\n\nmono-type   ::= type-var | type-term | identifier\ntype-var    ::= \"@\" identifier\ntype-term   ::= type-func \"(<\" mono-type \",\" ... \">)\"\n\ntype-func   ::= union-expr | struct-expr | identifier\n\nunion-expr  ::= \"union\"  \"{\" declarator \";\" ... \";\" \"}\"\nstruct-expr ::= \"struct\" \"{\" declarator \";\" ... \";\" \"}\"\n\ndeclarator  ::= identifier \":\" mono-type\n",
+		"children": []
+	},
+	"ctenv-typevars": {
+		"title": "Context (DONE)",
+		"tags": ["type-system"],
+		"text": "Differentiate free variables from unbound ones when generalizing. Add type variables\nto the CompileTimeEnvironment.",
+		"children": []
+	},
+	"hm-rec-rule": {
+		"title": "Hindley-Milner [rec] rule (DONE)",
+		"tags": ["type-system"],
+		"text":"Use TarjanSolver to identify the strongly connected components in the graph of\nfunction calls, apply the rec rule to them in a reverse toposort order.\n\n Make it so types of declarations are not generalized until the whole rec-block is typechecked.",
+		"children": ["ctenv-typevars"]
+	},
+	"gc-handles": {
+		"title": "Make GC work (DONE)",
+		"tags": ["runtime"],
+		"text": "We need to add some form of GC-pointer-handle to prevent GC objects that are being\nmanipulated by the runtime from getting free’d prematurely.\n\nA possible way to do this is with a std::shared_pointer-esque RAII type: keep a\nhandle-refcount on every object, and have the GC automatically visit it if its\nrefcount is not 0. (do bookkeeping using an unordered_set)",
+		"children": []
+	},
+	"match": {
+		"title": "`match` expressions",
+		"tags": ["language-feature"],
+		"text": "Since we are going to have unions, we also need a way to visit them. It would be\ncool to have a `switch`-like expression thing, with exhaustiveness checking and so on.",
+		"children": ["match-parse", "match-typecheck"]
+	},
+	"match-parse": {
+		"title": "Parse `match` expressions",
+		"tags": ["syntax","parser"],
+		"text": "This still needs to be properly though about, but this is a quick mockup.",
+		"children": ["match-bnf"]
+	},
+	"match-bnf": {
+		"title": "`match` expressions BNF",
+		"tags": ["syntax","bnf"],
+		"text": "match      ::= \"match\" \"(\" expression \")\" \"{\" match-case \";\" ... \";\" \"}\"\nmatch-case ::= identifer \"=>\" expression",
+		"children": []
+	},
+	"match-typecheck": {
+		"title": "Typecheck `match` expressions",
+		"tags": ["type-system"],
+		"text": "There are two important parts related to typechecking a match expression: checking\nthat it uses the fields that exist on the type of the matched value, and typechecking\nthe result of the match expression\n\nIt seems sensible to only do the first part only once the type of the matched-on\nvalue is known. But, since the second part may depend on the result of the first\none, we end up with a whole bunch of order-dependance in the typechecker, which I\nwould rather not deal with...",
+		"children": []
+	}
+}

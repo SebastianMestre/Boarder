@@ -1,0 +1,23 @@
+body {
+	margin: 0 auto;
+	max-width: 80ch;
+	background: #3d6;
+}
+
+article {
+	background: #ddd;
+	margin: 1rem;
+	padding: 1.5rem;
+
+	box-shadow: 0 .2rem .5rem rgba(0,0,0,0.1);
+	border-radius: 2px;
+	border: 1px solid #ccc;
+}
+
+ul {
+	padding-left: 1rem;
+}
+
+ul li {
+	list-style: none;
+}
