@@ -164,7 +164,122 @@ the result of the match expression
 It seems sensible to only do the first part only once the type of the matched-on
 value is known. But, since the second part may depend on the result of the first
 one, we end up with a whole bunch of order-dependance in the typechecker, which I
-would rather not deal with...</pre>
+would rather not deal with...
+
+UPDATE: I have thought about this a good deal, and I think I found a solution.
+
+Here it goes:
+
+
+==== What is the problem we are trying to solve? ====
+
+When we typecheck a match expression, we learn some things about the type of
+the thing we are matching on. We do not learn its type, but we do learn some
+facts that can be helful in further type chcking/deduction
+
+Example:
+
+x := fn (y) {
+  return match (y) {
+    a => 5;
+    b => b;
+  };
+}
+
+The match expression has fields "a" and "b", thus, we know that y must be of
+union type with fields "a" and "b", but we do not know its actual type.
+
+Also, we know that (since all branches of a match must have the same type),
+the field `b` is of type `int`.
+
+==== What tools will we use? ====
+
+First, I introduce the idea of a dummy-union. This is a form of typefunc whose
+only purpose is to help in unification.
+
+A dummy-union has a list of all the identifiers that are known to be in a union
+typefunc, along with their deduced monotype. It esentially represents a typefunc
+which is known to be a union with (at least) certain fields, but whose identity
+is not yet known.
+
+When we unify two dummy-unions, we merge their information.
+
+example:
+
+unify_typefunc(
+  dummy-union{ {{ "a", mono_int() },
+                { "b", mono_string() },
+                { "c", new_var() }} },
+  dummy-union{ {{ "c", mono_int() }} });
+
+gives as a result:
+
+dummy-union{ {{ "a", mono_int() },
+              { "b", mono_string() },
+              { "c", mono_int() }} };
+
+When we unify a dummy-union with an union, we check that the dummy-union is
+compatible with the union (i.e. that it doesn't have any extra fields, and that
+the types of the fields can be unified)
+
+example:
+
+unify_typefunc(
+  dummy-union{ {{ "a", mono_int() },
+                { "b", mono_string() }} },
+  union{ {{ "a", mono_int() },
+         { "b", mono_string() },
+         { "c", mono_int() }} });
+
+gives as a result the original union:
+
+union{ {{ "a", mono_int() },
+        { "b", mono_string() },
+        { "c", mono_int() }} };
+
+==== How can this be used to typecheck match? ====
+
+When we typecheck a match expression, we create a new dummy-union typefunc with
+all the fields that were matched on.
+We then unify this with the typefunc of the value we are matching on.
+
+Going back to the example from before
+
+x := fn (y) {
+  return match (y) {
+    a => 5;
+    b => b;
+  };
+}
+
+we can do a step by step of this program being typechecked:
+
+typecheck x:
+| typecheck fn (y) { ... }:
+| | y : new_var()
+| | return_type : new_var()
+| |
+| | typecheck return:
+| | | typecheck match(y) { a; b; }:
+| | | |   let du = new_dummy_union { {{ "a", new_var() },
+| | | |                               { "b", new_var() }} }
+| | | |   unify(typeof y, new_term(du, {}))
+| | | |
+| | | |   let x = newvar
+| | | |   unify(x, typeof 5)   // we get int
+| | | |   unify(x, typeof b)   // we learn that the field "b" of du has type int
+| | | |   match(y) { ... } : x // the match returns an int
+| | |
+| | | unify(current_function().return_type, typeof match (y) { ... }) // we get int
+|
+| x : generalize(typeof fn (y) { ... }) // we get x : ( du(<>) ) -> int
+
+
+At the end of typechecking, we can go over all the ast, and check whether anything
+still has a dummy typefunc in its type. In which case, we can tell that we were
+not able to do complete deduction, and we can emit an error.
+
+</pre>
 		
 	</article>
 <article>
