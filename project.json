@@ -1,4 +1,28 @@
 {
+	"match": {
+		"title": "`match` expressions",
+		"tags": ["language-feature"],
+		"text": "Since we are going to have unions, we also need a way to visit them. It would be\ncool to have a `switch`-like expression thing, with exhaustiveness checking and so on.",
+		"children": ["match-parse", "match-typecheck"]
+	},
+	"match-parse": {
+		"title": "Parse `match` expressions",
+		"tags": ["syntax","parser"],
+		"text": "This still needs to be properly though about, but this is a quick mockup.",
+		"children": ["match-bnf"]
+	},
+	"match-bnf": {
+		"title": "`match` expressions BNF",
+		"tags": ["syntax","bnf"],
+		"text": "match      ::= \"match\" \"(\" expression \")\" \"{\" match-case \";\" ... \";\" \"}\"\nmatch-case ::= identifer \"=>\" expression",
+		"children": []
+	},
+	"match-typecheck": {
+		"title": "Typecheck `match` expressions",
+		"tags": ["type-system"],
+		"text": "There are two important parts related to typechecking a match expression: checking\nthat it uses the fields that exist on the type of the matched value, and typechecking\nthe result of the match expression\n\nIt seems sensible to only do the first part only once the type of the matched-on\nvalue is known. But, since the second part may depend on the result of the first\none, we end up with a whole bunch of order-dependance in the typechecker, which I\nwould rather not deal with...",
+		"children": []
+	},
 	"unions": {
 		"title": "Union / sum types",
 		"tags": ["language-feature"],
@@ -37,30 +61,6 @@
 		"title": "Make GC work (DONE)",
 		"tags": ["runtime"],
 		"text": "We need to add some form of GC-pointer-handle to prevent GC objects that are being\nmanipulated by the runtime from getting free’d prematurely.\n\nA possible way to do this is with a std::shared_pointer-esque RAII type: keep a\nhandle-refcount on every object, and have the GC automatically visit it if its\nrefcount is not 0. (do bookkeeping using an unordered_set)",
-		"children": []
-	},
-	"match": {
-		"title": "`match` expressions",
-		"tags": ["language-feature"],
-		"text": "Since we are going to have unions, we also need a way to visit them. It would be\ncool to have a `switch`-like expression thing, with exhaustiveness checking and so on.",
-		"children": ["match-parse", "match-typecheck"]
-	},
-	"match-parse": {
-		"title": "Parse `match` expressions",
-		"tags": ["syntax","parser"],
-		"text": "This still needs to be properly though about, but this is a quick mockup.",
-		"children": ["match-bnf"]
-	},
-	"match-bnf": {
-		"title": "`match` expressions BNF",
-		"tags": ["syntax","bnf"],
-		"text": "match      ::= \"match\" \"(\" expression \")\" \"{\" match-case \";\" ... \";\" \"}\"\nmatch-case ::= identifer \"=>\" expression",
-		"children": []
-	},
-	"match-typecheck": {
-		"title": "Typecheck `match` expressions",
-		"tags": ["type-system"],
-		"text": "There are two important parts related to typechecking a match expression: checking\nthat it uses the fields that exist on the type of the matched value, and typechecking\nthe result of the match expression\n\nIt seems sensible to only do the first part only once the type of the matched-on\nvalue is known. But, since the second part may depend on the result of the first\none, we end up with a whole bunch of order-dependance in the typechecker, which I\nwould rather not deal with...",
 		"children": []
 	}
 }

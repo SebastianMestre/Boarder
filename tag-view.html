@@ -20,18 +20,6 @@
 	
 		<h1 id="language-feature">language-feature</h1>
 		<article>
-		<h1>Union / sum types</h1>
-		<p><small>tags: language-feature</small></p>
-		<pre>Implement unions into the language, along with a way to visit their members</pre>
-		
-				<section>
-					<h1>Children</h1>
-					<ul>
-						<li>Parse union / sum types</li>
-					</ul>
-				</section>
-	</article>
-<article>
 		<h1>`match` expressions</h1>
 		<p><small>tags: language-feature</small></p>
 		<pre>Since we are going to have unions, we also need a way to visit them. It would be
@@ -45,9 +33,40 @@ cool to have a `switch`-like expression thing, with exhaustiveness checking and 
 					</ul>
 				</section>
 	</article>
+<article>
+		<h1>Union / sum types</h1>
+		<p><small>tags: language-feature</small></p>
+		<pre>Implement unions into the language, along with a way to visit their members</pre>
+		
+				<section>
+					<h1>Children</h1>
+					<ul>
+						<li>Parse union / sum types</li>
+					</ul>
+				</section>
+	</article>
 
 		<h1 id="syntax">syntax</h1>
 		<article>
+		<h1>Parse `match` expressions</h1>
+		<p><small>tags: syntax, parser</small></p>
+		<pre>This still needs to be properly though about, but this is a quick mockup.</pre>
+		
+				<section>
+					<h1>Children</h1>
+					<ul>
+						<li>`match` expressions BNF</li>
+					</ul>
+				</section>
+	</article>
+<article>
+		<h1>`match` expressions BNF</h1>
+		<p><small>tags: syntax, bnf</small></p>
+		<pre>match      ::= "match" "(" expression ")" "{" match-case ";" ... ";" "}"
+match-case ::= identifer "=>" expression</pre>
+		
+	</article>
+<article>
 		<h1>Parse union / sum types</h1>
 		<p><small>tags: syntax, parser</small></p>
 		<pre>implement parsing of unions in the type system</pre>
@@ -77,7 +96,9 @@ declarator  ::= identifier ":" mono-type
 </pre>
 		
 	</article>
-<article>
+
+		<h1 id="parser">parser</h1>
+		<article>
 		<h1>Parse `match` expressions</h1>
 		<p><small>tags: syntax, parser</small></p>
 		<pre>This still needs to be properly though about, but this is a quick mockup.</pre>
@@ -90,15 +111,6 @@ declarator  ::= identifier ":" mono-type
 				</section>
 	</article>
 <article>
-		<h1>`match` expressions BNF</h1>
-		<p><small>tags: syntax, bnf</small></p>
-		<pre>match      ::= "match" "(" expression ")" "{" match-case ";" ... ";" "}"
-match-case ::= identifer "=>" expression</pre>
-		
-	</article>
-
-		<h1 id="parser">parser</h1>
-		<article>
 		<h1>Parse union / sum types</h1>
 		<p><small>tags: syntax, parser</small></p>
 		<pre>implement parsing of unions in the type system</pre>
@@ -107,24 +119,19 @@ match-case ::= identifer "=>" expression</pre>
 					<h1>Children</h1>
 					<ul>
 						<li>Type language BNF</li>
-					</ul>
-				</section>
-	</article>
-<article>
-		<h1>Parse `match` expressions</h1>
-		<p><small>tags: syntax, parser</small></p>
-		<pre>This still needs to be properly though about, but this is a quick mockup.</pre>
-		
-				<section>
-					<h1>Children</h1>
-					<ul>
-						<li>`match` expressions BNF</li>
 					</ul>
 				</section>
 	</article>
 
 		<h1 id="bnf">bnf</h1>
 		<article>
+		<h1>`match` expressions BNF</h1>
+		<p><small>tags: syntax, bnf</small></p>
+		<pre>match      ::= "match" "(" expression ")" "{" match-case ";" ... ";" "}"
+match-case ::= identifer "=>" expression</pre>
+		
+	</article>
+<article>
 		<h1>Type language BNF</h1>
 		<p><small>tags: syntax, bnf</small></p>
 		<pre>type-expr   ::= mono-type | type-func
@@ -142,16 +149,22 @@ declarator  ::= identifier ":" mono-type
 </pre>
 		
 	</article>
-<article>
-		<h1>`match` expressions BNF</h1>
-		<p><small>tags: syntax, bnf</small></p>
-		<pre>match      ::= "match" "(" expression ")" "{" match-case ";" ... ";" "}"
-match-case ::= identifer "=>" expression</pre>
-		
-	</article>
 
 		<h1 id="type-system">type-system</h1>
 		<article>
+		<h1>Typecheck `match` expressions</h1>
+		<p><small>tags: type-system</small></p>
+		<pre>There are two important parts related to typechecking a match expression: checking
+that it uses the fields that exist on the type of the matched value, and typechecking
+the result of the match expression
+
+It seems sensible to only do the first part only once the type of the matched-on
+value is known. But, since the second part may depend on the result of the first
+one, we end up with a whole bunch of order-dependance in the typechecker, which I
+would rather not deal with...</pre>
+		
+	</article>
+<article>
 		<h1>Context (DONE)</h1>
 		<p><small>tags: type-system</small></p>
 		<pre>Differentiate free variables from unbound ones when generalizing. Add type variables
@@ -172,19 +185,6 @@ function calls, apply the rec rule to them in a reverse toposort order.
 						<li>Context (DONE)</li>
 					</ul>
 				</section>
-	</article>
-<article>
-		<h1>Typecheck `match` expressions</h1>
-		<p><small>tags: type-system</small></p>
-		<pre>There are two important parts related to typechecking a match expression: checking
-that it uses the fields that exist on the type of the matched value, and typechecking
-the result of the match expression
-
-It seems sensible to only do the first part only once the type of the matched-on
-value is known. But, since the second part may depend on the result of the first
-one, we end up with a whole bunch of order-dependance in the typechecker, which I
-would rather not deal with...</pre>
-		
 	</article>
 
 		<h1 id="runtime">runtime</h1>
