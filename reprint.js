@@ -106,6 +106,9 @@ const renderTagCategory = (name, content) => {
 const renderTagView = (index) => {
 	return `
 	<article>
+		<a href="item-view.html"> Go to item view </a>
+	</article>
+	<article>
 		<h1>Tags</h1>
 		<ul>
 			${ Object.keys(index)
@@ -120,7 +123,14 @@ const renderTagView = (index) => {
 };
 
 const renderNormalView = (entries) => {
-	return renderEntryArray(Object.values(entries), PrintChildren.Recursive, PrintRepeats.No);
+	return `
+	<article>
+		<a href="tag-view.html"> Go to tag view </a>
+	</article>
+	${ renderEntryArray(
+		Object.values(entries),
+		PrintChildren.Recursive,
+		PrintRepeats.No) }`;
 };
 
 const HTMLBoilerplate = content => `
